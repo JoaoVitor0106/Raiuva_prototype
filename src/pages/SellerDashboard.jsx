@@ -294,7 +294,7 @@ const SellerDashboard = () => {
 
   // Reset Admin Credentials to Default
   const handleResetAdminCreds = () => {
-    if (window.confirm("Deseja restaurar o e-mail e senha padrão (admin@raiuva.com / raiuva2026)?")) {
+    if (window.confirm("Deseja restaurar o e-mail e senha padrão (demo@raiuva.dev / demo123)?")) {
       localStorage.setItem('raiuva_admin_creds', JSON.stringify(DEFAULT_ADMIN_CREDS));
       setAdminCreds(DEFAULT_ADMIN_CREDS);
       setEditAdminEmail(DEFAULT_ADMIN_CREDS.email);
@@ -820,7 +820,7 @@ const SellerDashboard = () => {
                   onClick={handleResetAdminCreds}
                   className="text-xs text-slate-400 hover:text-[#CFFF00] py-2 transition-colors"
                 >
-                  ↺ Restaurar para o padrão (admin@raiuva.com / raiuva2026)
+                  ↺ Restaurar para o padrão (demo@raiuva.dev / demo123)
                 </button>
               </div>
             </form>
