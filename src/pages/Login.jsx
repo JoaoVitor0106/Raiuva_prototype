@@ -7,8 +7,8 @@ import { useAuth } from '../context/AuthContext';
 import RaivaLogo from '../components/RaivaLogo';
 
 export const DEFAULT_ADMIN_CREDS = {
-  email: 'admin@raiuva.com',
-  password: 'raiuva2026'
+  email: 'demo@raiuva.dev',
+  password: 'demo123'
 };
 
 export const getAdminCredentials = () => {
