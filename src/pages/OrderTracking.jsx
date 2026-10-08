@@ -1,23 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc } from '../mocks/firestore.js';
-import { db } from '../mocks/firestore.js';
 import { CheckCircle, Package, MapPin, Zap, ArrowLeft, Clock, BellRing, BellOff } from 'lucide-react';
+
+// Pedido fictício apenas para demonstração do protótipo
+const MOCK_ORDER = {
+  buyer: 'Maria Eduarda',
+  items: ['2x Red Bull Energy Drink', '1x Monster Energy Zero Ultra'],
+  total: 32.0,
+  status: 'ACCEPTED',
+  paymentMethod: 'pix',
+  room: 'Bloco K, Sala 201',
+  referencePoint: 'Perto da escada rolante',
+  createdAtTimestamp: Date.now() - 5 * 60 * 1000,
+};
 
 const OrderTracking = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [notificationPermission, setNotificationPermission] = useState(Notification.permission);
-  const prevStatusRef = useRef(null);
+  const [order, setOrder] = useState(MOCK_ORDER);
+  const [loading] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState('granted');
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [newAddress, setNewAddress] = useState('');
 
   const handleUpdateAddress = async () => {
     if (!newAddress.trim()) return;
     try {
-      await updateDoc(doc(db, 'orders', orderId), { room: newAddress });
+      setOrder((prev) => ({ ...prev, room: newAddress }));
       setIsEditingAddress(false);
     } catch (error) {
       console.error("Erro ao atualizar endereço", error);
@@ -36,53 +45,6 @@ const OrderTracking = () => {
     }
   };
 
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
-
-  useEffect(() => {
-    if (!orderId) return;
-
-    const unsub = onSnapshot(doc(db, 'orders', orderId), (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setOrder(data);
-
-        // Verifica mudança de status para disparar notificação
-        const currentStatus = data.status;
-        const previousStatus = prevStatusRef.current;
-
-        if (previousStatus && previousStatus !== currentStatus) {
-          if (Notification.permission === 'granted') {
-            if (currentStatus === 'ACCEPTED') {
-              new Notification("RaiUva Delivery ⚡", {
-                body: "Seu pedido foi aceito e as bebidas estão sendo separadas!",
-                icon: "/vite.svg" // Replace with actual logo if available in public
-              });
-            } else if (currentStatus === 'ARRIVED_AT_DOOR') {
-              new Notification("Chegamos! 🚪⚡", {
-                body: "O entregador já está na porta da sua sala. Venha pegar suas bebidas geladas!",
-                icon: "/vite.svg"
-              });
-            } else if (currentStatus === 'COMPLETED') {
-              new Notification("Pedido Entregue! ✅", {
-                body: "Aproveite sua bebida bem gelada! Volte sempre à RaiUva.",
-                icon: "/vite.svg"
-              });
-            }
-          }
-        }
-
-        prevStatusRef.current = currentStatus;
-      }
-      setLoading(false);
-    }, (err) => {
-      console.error("Erro ao buscar pedido:", err);
-      setLoading(false);
-    });
-
-    return () => unsub();
-  }, [orderId]);
 
   if (loading) {
     return (
